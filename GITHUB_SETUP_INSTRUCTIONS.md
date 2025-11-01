@@ -7,7 +7,7 @@
     - Or click the "+" icon → "New repository"
 
 2. **Repository Settings**
-    - **Name:** `foodlabel-scanner` (or your preferred name)
+    - **Name:** `bitecheck` (or your preferred name)
     - **Description:** "AI-powered Android app for scanning and analyzing nutrition labels"
     - **Visibility:** Public (or Private if you prefer)
     - ⚠️ **DO NOT** initialize with README, .gitignore, or license (we have these already)
@@ -62,7 +62,7 @@ git config --global user.email "your.email@example.com"
 Replace `YOUR_USERNAME` with your GitHub username:
 
 ```bash
-git remote add origin https://github.com/YOUR_USERNAME/foodlabel-scanner.git
+git remote add origin https://github.com/YOUR_USERNAME/bitecheck.git
 ```
 
 ### 3.4 Check What Will Be Committed
@@ -87,7 +87,7 @@ git add .
 ### 3.6 Commit
 
 ```bash
-git commit -m "Initial commit: FoodLabel Scanner app with AI-powered nutrition analysis"
+git commit -m "Initial commit: BiteCheck app with AI-powered nutrition analysis"
 ```
 
 ### 3.7 Push to GitHub
@@ -215,12 +215,12 @@ Add to top of README.md:
 Create a file explaining how others can contribute:
 
 ```markdown
-# Contributing to FoodLabel Scanner
+# Contributing to BiteCheck
 
 ## Setup for New Contributors
 
 1. Fork the repository
-2. Clone your fork: `git clone https://github.com/YOUR_USERNAME/foodlabel-scanner.git`
+2. Clone your fork: `git clone https://github.com/YOUR_USERNAME/bitecheck.git`
 3. Set up Firebase (see README.md)
 4. Add Gemini API key (see README.md)
 5. Build: `./gradlew assembleDebug`
@@ -253,9 +253,9 @@ Before pushing, verify:
 # Initialize and push
 git init
 git add .
-git commit -m "Initial commit: FoodLabel Scanner"
+git commit -m "Initial commit: BiteCheck"
 git branch -M main
-git remote add origin https://github.com/YOUR_USERNAME/foodlabel-scanner.git
+git remote add origin https://github.com/YOUR_USERNAME/bitecheck.git
 git push -u origin main
 
 # Tag release
@@ -299,7 +299,7 @@ Others can now:
 **Repository URL:**
 
 ```
-https://github.com/YOUR_USERNAME/foodlabel-scanner
+https://github.com/YOUR_USERNAME/bitecheck
 ```
 
 Share this link to let others use your app! 🚀

@@ -2,7 +2,7 @@
 
 ## ✅ What I've Prepared
 
-I've created everything you need to push your FoodLabel Scanner app to GitHub:
+I've created everything you need to push your BiteCheck app to GitHub:
 
 ### 📁 Files Created/Updated
 
@@ -37,7 +37,7 @@ I've created everything you need to push your FoodLabel Scanner app to GitHub:
 
 Go to: https://github.com/new
 
-- Name: `foodlabel-scanner`
+- Name: `bitecheck`
 - Don't initialize with README/gitignore
 - Click "Create repository"
 
@@ -60,7 +60,7 @@ git add .
 git commit -m "Initial commit: AI-powered nutrition label scanner"
 
 # Add remote (REPLACE YOUR_USERNAME!)
-git remote add origin https://github.com/YOUR_USERNAME/foodlabel-scanner.git
+git remote add origin https://github.com/YOUR_USERNAME/bitecheck.git
 
 # Push to GitHub
 git branch -M main
@@ -69,7 +69,7 @@ git push -u origin main
 
 ### 3. Done! 🎉
 
-Visit: `https://github.com/YOUR_USERNAME/foodlabel-scanner`
+Visit: `https://github.com/YOUR_USERNAME/bitecheck`
 
 ---
 
@@ -143,7 +143,7 @@ Once your code is on GitHub, others can:
 
 1. **Clone your repository**
    ```bash
-   git clone https://github.com/YOUR_USERNAME/foodlabel-scanner.git
+   git clone https://github.com/YOUR_USERNAME/bitecheck.git
    ```
 
 2. **Set up their own Firebase project**
@@ -271,7 +271,7 @@ On GitHub repository page:
 
 ## 🎊 Summary
 
-**Your FoodLabel Scanner project is now:**
+**Your BiteCheck project is now:**
 
 - ✅ Professionally documented
 - ✅ Secure (secrets protected)
@@ -300,7 +300,7 @@ Follow the commands in **`push_to_github.md`** to upload your project to GitHub!
 **Your repository will be at:**
 
 ```
-https://github.com/YOUR_USERNAME/foodlabel-scanner
+https://github.com/YOUR_USERNAME/bitecheck
 ```
 
 **Good luck with your AI-powered nutrition scanner! 🥗📱✨**

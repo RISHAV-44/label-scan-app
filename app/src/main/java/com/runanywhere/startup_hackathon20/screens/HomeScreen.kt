@@ -62,13 +62,13 @@ fun HomeScreen(
                         )
                         Column {
                             Text(
-                                text = "FoodLabel",
+                                text = "BiteCheck",
                                 fontSize = 22.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = FreshGreen
                             )
                             Text(
-                                text = "Scanner",
+                                text = "by AI",
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.Normal,
                                 color = TextSecondary

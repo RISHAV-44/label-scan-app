@@ -1,4 +1,4 @@
-# 🥗 FoodLabel Scanner - AI Nutrition Analysis App
+# 🥗 BiteCheck - AI Nutrition Analysis App
 
 <div align="center">
 
@@ -18,8 +18,8 @@
 
 ## 📱 About
 
-FoodLabel Scanner is a cutting-edge Android application that leverages AI to help users make
-informed dietary choices. Simply point your camera at any nutrition label, and get instant, detailed
+BiteCheck is a cutting-edge Android application that leverages AI to help users make informed
+dietary choices. Simply point your camera at any nutrition label, and get instant, detailed
 nutritional analysis with allergen detection and health insights.
 
 ### 🎯 Key Highlights
@@ -74,8 +74,8 @@ nutritional analysis with allergen detection and health insights.
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/YOUR_USERNAME/foodlabel-scanner.git
-   cd foodlabel-scanner
+   git clone https://github.com/YOUR_USERNAME/bitecheck.git
+   cd bitecheck
    ```
 
 2. **Open in Android Studio**

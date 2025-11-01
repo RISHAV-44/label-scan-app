@@ -90,7 +90,7 @@ fun LoginScreen(
 
             // App Title - Enhanced typography
             Text(
-                text = "FoodLabel",
+                text = "BiteCheck",
                 fontSize = 38.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.White,
@@ -98,7 +98,7 @@ fun LoginScreen(
             )
 
             Text(
-                text = "Scanner",
+                text = "by AI",
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Medium,
                 color = Color.White.copy(alpha = 0.95f),

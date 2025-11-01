@@ -27,14 +27,14 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             Startup_hackathon20Theme {
-                FoodLabelScanApp()
+                BiteCheckApp()
             }
         }
     }
 }
 
 @Composable
-fun FoodLabelScanApp() {
+fun BiteCheckApp() {
     val navController = rememberNavController()
     val authViewModel: AuthViewModel = viewModel()
     val scanViewModel: ScanViewModel = viewModel()

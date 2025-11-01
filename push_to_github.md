@@ -3,7 +3,7 @@
 ## Prerequisites
 
 - Make sure you've created a GitHub repository at: https://github.com/new
-- Name it: `foodlabel-scanner` (or your choice)
+- Name it: `bitecheck` (or your choice)
 - **Don't** initialize with README/gitignore/license
 
 ---
@@ -43,7 +43,7 @@ git add .
 git commit -m "Initial commit: AI-powered nutrition label scanner with Gemini & ML Kit"
 
 # Add GitHub remote (REPLACE YOUR_USERNAME!)
-git remote add origin https://github.com/YOUR_USERNAME/foodlabel-scanner.git
+git remote add origin https://github.com/YOUR_USERNAME/bitecheck.git
 
 # Push to GitHub
 git branch -M main
@@ -54,7 +54,7 @@ git push -u origin main
 
 ## Step 3: Verify on GitHub
 
-1. Go to: `https://github.com/YOUR_USERNAME/foodlabel-scanner`
+1. Go to: `https://github.com/YOUR_USERNAME/bitecheck`
 2. You should see all your files!
 
 ---
@@ -86,7 +86,7 @@ Your code is now on GitHub! Others can:
 **Share your repository:**
 
 ```
-https://github.com/YOUR_USERNAME/foodlabel-scanner
+https://github.com/YOUR_USERNAME/bitecheck
 ```
 
 ---
@@ -133,4 +133,4 @@ Then on GitHub:
 
 ## 🎊 Done!
 
-Your FoodLabel Scanner project is now on GitHub! 🚀
+Your BiteCheck project is now on GitHub! 🚀
