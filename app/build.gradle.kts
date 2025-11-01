@@ -72,8 +72,8 @@ dependencies {
     // Google ML Kit - On-device OCR (Text Recognition)
     implementation("com.google.mlkit:text-recognition:16.0.0")
 
-    // Google Generative AI (Gemini) - Cloud-based LLM
-    implementation("com.google.ai.client.generativeai:generativeai:0.1.2")
+    // Google Generative AI (Gemini) - Cloud-based LLM (Latest version)
+    implementation("com.google.ai.client.generativeai:generativeai:0.9.0")
 
     // Ktor for networking (required by Gemini SDK) - Android engine
     implementation("io.ktor:ktor-client-core:2.3.7")
