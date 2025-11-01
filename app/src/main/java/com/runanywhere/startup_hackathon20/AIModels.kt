@@ -339,14 +339,21 @@ private suspend fun callGeminiAPIWithFallbackModel(text: String): String {
  */
 private fun buildGeminiPrompt(text: String): String {
     return """
-You are a nutrition label analyzer. Extract data from this text and return ONLY valid JSON.
+You are a nutrition label analyzer. Your task is to extract nutrition facts from text and return ONLY valid JSON.
 
-EXTRACTED TEXT:
+CRITICAL RULES:
+1. Return ONLY the JSON object - NO explanations, NO markdown, NO extra text
+2. All numbers MUST be integers (not strings, not floats)
+3. If a value is not found, use 0 (not null, not "unknown")
+4. Product name should be a short, clear name
+5. Do not include units in the numbers (no "g", "mg", "kcal" etc)
+
+EXTRACTED TEXT FROM LABEL:
 $text
 
-RETURN THIS EXACT JSON STRUCTURE (numbers only, no units):
+RETURN EXACTLY THIS JSON STRUCTURE:
 {
-  "productName": "inferred product name or 'Food Product'",
+  "productName": "short product name here",
   "calories": 0,
   "sugar": 0,
   "sodium": 0,
@@ -358,71 +365,145 @@ RETURN THIS EXACT JSON STRUCTURE (numbers only, no units):
   "watchlistIngredients": []
 }
 
-RULES:
-1. Return ONLY the JSON object
-2. No markdown, no backticks, no explanations
-3. All numbers must be numeric values (not strings)
-4. Use 0 if value not found
-5. allergens array: check for Milk, Eggs, Peanuts, Tree Nuts, Soy, Wheat, Fish, Shellfish
-6. watchlistIngredients: check for Aspartame, Red 40, High Fructose Corn Syrup
+EXAMPLES OF VALID OUTPUT:
+{
+  "productName": "Granola Bar",
+  "calories": 120,
+  "sugar": 8,
+  "sodium": 95,
+  "totalFat": 5,
+  "saturatedFat": 1,
+  "fiber": 2,
+  "protein": 3,
+  "allergens": ["Peanuts", "Soy"],
+  "watchlistIngredients": ["High Fructose Corn Syrup"]
+}
 
-Extract the nutrition data now:
+IMPORTANT:
+- Numbers must be integers: 120 NOT "120" or 120.0
+- Arrays must be valid: ["item"] NOT [item]
+- Product name must be a string: "Name" NOT Name
+- Use empty arrays [] if no allergens or ingredients
+
+Extract the nutrition data from the text above and return ONLY the JSON object now:
     """.trimIndent()
 }
 
 /**
- * Extracts JSON from Gemini response
+ * Extracts JSON from Gemini response with improved validation
  */
 private fun extractJsonFromResponse(response: String): String {
-    // Remove markdown formatting
-    var cleaned = response
-        .replace("```json", "")
-        .replace("```", "")
-        .trim()
+    Log.d(TAG, "🔍 Extracting JSON from response (${response.length} chars)")
+    Log.d(TAG, "Full response: $response")
 
-    // Find JSON boundaries
-    val start = cleaned.indexOf('{')
-    val end = cleaned.lastIndexOf('}')
+    try {
+        // Remove markdown formatting
+        var cleaned = response
+            .replace("```json", "")
+            .replace("```", "")
+            .trim()
 
-    if (start >= 0 && end > start) {
+        Log.d(TAG, "After markdown removal: $cleaned")
+
+        // Find JSON boundaries
+        val start = cleaned.indexOf('{')
+        val end = cleaned.lastIndexOf('}')
+
+        if (start < 0 || end <= start) {
+            Log.e(TAG, "❌ No valid JSON boundaries found")
+            Log.e(TAG, "Looking for '{' at position $start and '}' at position $end")
+            throw IllegalStateException(
+                "No JSON object found in response. Response was: ${
+                    response.take(
+                        200
+                    )
+                }"
+            )
+        }
+
         cleaned = cleaned.substring(start, end + 1)
-    } else {
-        throw IllegalStateException("No valid JSON found in response")
-    }
+        Log.d(TAG, "Extracted JSON substring: $cleaned")
 
-    // Basic validation
-    if (!cleaned.contains("\"productName\"")) {
-        throw IllegalStateException("Invalid JSON structure - missing required fields")
-    }
+        // Validate JSON structure
+        if (!cleaned.contains("\"productName\"")) {
+            Log.e(TAG, "❌ Missing productName field")
+            throw IllegalStateException("Invalid JSON - missing productName field")
+        }
 
-    return cleaned
+        if (!cleaned.contains("\"calories\"")) {
+            Log.e(TAG, "❌ Missing calories field")
+            throw IllegalStateException("Invalid JSON - missing calories field")
+        }
+
+        // Check for common JSON errors
+        if (cleaned.count { it == '{' } != cleaned.count { it == '}' }) {
+            Log.e(TAG, "❌ Mismatched braces")
+            throw IllegalStateException("Invalid JSON - mismatched braces")
+        }
+
+        if (cleaned.count { it == '[' } != cleaned.count { it == ']' }) {
+            Log.e(TAG, "❌ Mismatched brackets")
+            throw IllegalStateException("Invalid JSON - mismatched brackets")
+        }
+
+        Log.d(TAG, "✅ JSON extraction successful")
+        return cleaned
+
+    } catch (e: Exception) {
+        Log.e(TAG, "❌ JSON extraction failed: ${e.message}")
+        Log.e(TAG, "Original response: $response")
+        throw IllegalStateException(
+            "Failed to extract valid JSON: ${e.message}\nResponse was: ${
+                response.take(
+                    300
+                )
+            }"
+        )
+    }
 }
 
 /**
- * Validates JSON structure
+ * Validates JSON structure with detailed logging
  */
 private fun isValidJson(json: String): Boolean {
-    if (json.isBlank()) return false
+    if (json.isBlank()) {
+        Log.w(TAG, "JSON validation failed: Empty string")
+        return false
+    }
 
     val trimmed = json.trim()
-    if (!trimmed.startsWith('{') || !trimmed.endsWith('}')) return false
+    if (!trimmed.startsWith('{') || !trimmed.endsWith('}')) {
+        Log.w(
+            TAG,
+            "JSON validation failed: Not a JSON object (starts with '${trimmed.firstOrNull()}', ends with '${trimmed.lastOrNull()}')"
+        )
+        return false
+    }
 
     // Check for required fields
     val requiredFields = listOf("productName", "calories", "allergens")
-    return requiredFields.all { field ->
-        trimmed.contains("\"$field\"")
+    val missingFields = requiredFields.filter { field ->
+        !trimmed.contains("\"$field\"")
     }
+
+    if (missingFields.isNotEmpty()) {
+        Log.w(TAG, "JSON validation failed: Missing fields: $missingFields")
+        return false
+    }
+
+    Log.d(TAG, "✅ JSON validation passed")
+    return true
 }
 
 /**
  * Creates fallback JSON when analysis fails
  */
 private fun createFallbackJson(reason: String = "Analysis failed"): String {
-    Log.w(TAG, "Creating fallback JSON: $reason")
+    Log.w(TAG, "📋 Creating fallback JSON: $reason")
 
     return """
 {
-  "productName": "Scan Again - $reason",
+  "productName": "Scan Again",
   "calories": 0,
   "sugar": 0,
   "sodium": 0,
@@ -430,9 +511,8 @@ private fun createFallbackJson(reason: String = "Analysis failed"): String {
   "saturatedFat": 0,
   "fiber": 0,
   "protein": 0,
-  "allergens": [],
-  "watchlistIngredients": [],
-  "_error": "$reason"
+  "allergens": ["Error: $reason"],
+  "watchlistIngredients": []
 }
     """.trimIndent()
 }
