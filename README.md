@@ -1,131 +1,248 @@
-# RunAnywhere SDK - Simple Chat App
+# 🥗 FoodLabel Scanner App
 
-A simple Android chat application demonstrating the RunAnywhere SDK for on-device AI inference.
+A modern Android nutrition label scanner app built with Jetpack Compose and on-device AI.
 
-## What This App Does
+## ✨ Features
 
-This is a minimal example showing how to:
+- 📸 **Smart Camera** - Professional nutrition label scanning
+- 🤖 **Two-Step AI Pipeline** - ML Kit OCR + Local LLM for complete privacy
+- 🔒 **100% Private** - All processing happens on your device
+- 📊 **Detailed Nutrition** - Calories, macros, allergens, watchlist ingredients
+- 📱 **Beautiful Modern UI** - Material Design 3 with gradients and animations
+- 🔥 **Firebase Integration** - User authentication and scan history
+- 🌙 **Offline Capable** - Works without internet after initial setup
 
-1. Initialize the RunAnywhere SDK
-2. Download AI models (LLMs)
-3. Load models into memory
-4. Run text generation with streaming responses
+## 🤖 How AI Analysis Works
 
-## Features
+### Two-Step Pipeline
 
-- **Model Management**: Download and load AI models directly in the app
-- **Real-time Streaming**: See AI responses generate word-by-word
-- **Simple UI**: Clean Jetpack Compose interface
-- **On-Device AI**: All inference runs locally on your Android device
+1. **Step 1: OCR (Image → Text)**
+    - **Google ML Kit** extracts text from photos
+    - ✅ On-device, free, fast (< 1 second)
+    - ✅ No API keys needed
+    - ✅ Works offline immediately
 
-## Quick Start
+2. **Step 2: LLM (Text → JSON)**
+    - **Local AI model** structures text into nutrition data
+    - ✅ Complete privacy (data never leaves device)
+    - ✅ Works offline after model download
+    - ⚠️ Requires one-time model download (374 MB)
 
-### 1. Build and Run
+**See [HOW_IT_WORKS.md](HOW_IT_WORKS.md) for detailed explanation**
+
+## 🚀 Quick Start
+
+### Prerequisites
+
+- Android Studio Hedgehog or newer
+- Android device/emulator with API 24+ (Android 7.0+)
+- 2+ GB RAM recommended for AI models
+- 500+ MB free storage for model download
+
+### Setup
+
+1. **Clone the repository**
+   ```bash
+   git clone <your-repo-url>
+   cd Hackss
+   ```
+
+2. **Open in Android Studio**
+    - File → Open → Select the project folder
+    - Wait for Gradle sync to complete
+
+3. **Configure Firebase** (for authentication and scan history)
+    - Create a Firebase project at https://console.firebase.google.com
+    - Download `google-services.json`
+    - Place it in `app/` directory
+    - Enable Email/Password authentication in Firebase Console
+
+4. **Build and run**
+   ```bash
+   ./gradlew assembleDebug
+   adb install app/build/outputs/apk/debug/app-debug.apk
+   ```
+
+### First Launch
+
+On first launch, the app will automatically download the AI model (Qwen 2.5 0.5B - 374 MB) in the
+background.
+
+**Watch progress:**
 
 ```bash
-./gradlew assembleDebug
-# Or open in Android Studio and click Run
+adb logcat | grep "MyApp"
 ```
 
-### 2. Download a Model
+**Look for:**
 
-1. Launch the app
-2. Tap "Models" in the top bar
-3. Choose a model (we recommend starting with "SmolLM2 360M Q8_0" - only 119 MB)
-4. Tap "Download" and wait for it to complete
+- `🚀 Starting auto-download of AI model...`
+- `📥 Download progress: 10%, 20%, ...`
+- `✅ SUCCESS! Model loaded and ready to use!`
 
-### 3. Load the Model
+## 🎯 Current Status
 
-1. Once downloaded, tap "Load" on the model
-2. Wait for "Model loaded! Ready to chat." message
+### ✅ What's Working
 
-### 4. Start Chatting!
+- [x] Beautiful modern UI with gradients and animations
+- [x] Firebase authentication (login/signup)
+- [x] Camera with professional viewfinder
+- [x] **ML Kit OCR** - Real text extraction from images
+- [x] Local LLM integration with RunAnywhere SDK
+- [x] Auto-download configuration for Qwen 2.5 0.5B
+- [x] Scan history with Firebase Firestore
+- [x] Nutrition display with color-coded badges
+- [x] Error handling and fallbacks
 
-1. Type a message in the text field
-2. Tap "Send"
-3. Watch the AI response generate in real-time
+### ⚠️ What Needs Testing
 
-## Available Models
+- [ ] Verify auto-download works on first launch
+- [ ] Test real nutrition label scanning
+- [ ] Verify LLM accuracy with various labels
+- [ ] Test offline capability after model download
 
-The app comes pre-configured with two models:
+## 📱 App Screens
 
-| Model | Size | Quality | Best For |
-|-------|------|---------|----------|
-| SmolLM2 360M Q8_0 | 119 MB | Basic | Testing, quick responses |
-| Qwen 2.5 0.5B Instruct Q6_K | 374 MB | Better | General conversations |
+1. **Login/Signup** - Firebase authentication with beautiful gradient UI
+2. **Home** - Welcome card + prominent scan button + scan history
+3. **Camera** - Professional viewfinder with capture button
+4. **Loading** - Animated screen with rotating tips
+5. **Results** - Detailed nutrition info with color-coded badges
 
-## Technical Details
+## 🎨 Design System
 
-### SDK Components Used
+- **Primary Color**: Fresh Green (#4CAF50)
+- **Secondary Color**: Warm Orange (#FF9800)
+- **Nutrition Colors**: Yellow (calories), Purple (protein), Pink (sugar), Blue (sodium)
+- **Typography**: Poppins font family
+- **Animations**: Smooth transitions, pulsing effects, card animations
+- **Spacing**: Consistent 4dp grid system
 
-- **RunAnywhere Core SDK**: Component architecture and model management
-- **LlamaCpp Module**: Optimized llama.cpp inference engine with 7 ARM64 variants
-- **Kotlin Coroutines**: For async operations and streaming
+**See [DESIGN_SYSTEM.md](DESIGN_SYSTEM.md) for complete design documentation**
 
-### Architecture
+## 🔧 Technology Stack
+
+### Frontend
+- **Jetpack Compose** - Modern declarative UI
+- **Material Design 3** - Latest design system
+- **Navigation Compose** - Type-safe navigation
+- **CameraX** - Modern camera API
+
+### AI/ML
+
+- **Google ML Kit** - On-device OCR (text recognition)
+- **RunAnywhere SDK** - Local LLM inference
+- **Qwen 2.5 0.5B** - Lightweight but capable language model
+
+### Backend
+
+- **Firebase Authentication** - User management
+- **Firebase Firestore** - Scan history database
+- **Local Storage** - Model caching and offline support
+
+## 📁 Project Structure
 
 ```
-MyApplication (initialization)
-    ↓
-ChatViewModel (state management)
-    ↓
-ChatScreen (UI layer)
+app/
+├── src/main/java/com/runanywhere/startup_hackathon20/
+│   ├── screens/          # Composable screens
+│   │   ├── LoginScreen.kt
+│   │   ├── HomeScreen.kt
+│   │   ├── CameraScreen.kt
+│   │   ├── LoadingScreen.kt
+│   │   └── ResultsScreen.kt
+│   ├── viewmodels/       # Business logic
+│   │   ├── ScanViewModel.kt
+│   │   └── AuthViewModel.kt
+│   ├── data/             # Data layer
+│   │   ├── ScanResult.kt
+│   │   └── ScanHistoryRepository.kt
+│   ├── ui/theme/         # Design system
+│   │   ├── Color.kt
+│   │   ├── Theme.kt
+│   │   └── Type.kt
+│   ├── AIModels.kt       # Two-step AI pipeline
+│   ├── MyApplication.kt  # SDK initialization + auto-download
+│   └── MainActivity.kt   # App entry point
 ```
 
-### Key Files
+## 🔍 Troubleshooting
 
-- `MyApplication.kt` - SDK initialization and model registration
-- `ChatViewModel.kt` - Business logic and state management
-- `MainActivity.kt` - UI components and composables
+### App shows "Sample Product - Please Download AI Model"
 
-## Requirements
+**Cause:** No LLM model is loaded yet
 
-- Android 7.0 (API 24) or higher
-- ~200 MB free storage (for smallest model)
-- Internet connection (for downloading models)
+**Solutions:**
 
-## Troubleshooting
+1. Wait for auto-download to complete (check logcat)
+2. Restart the app to trigger auto-load
+3. Check device has 500+ MB free storage
+4. Verify internet connection for initial download
 
-### Models not showing up
+### "No text detected in image"
 
-- Wait a few seconds for SDK initialization
-- Tap "Refresh" in the Models section
-- Check logcat for initialization errors
+**Cause:** ML Kit couldn't extract text from the photo
 
-### Download fails
+**Solutions:**
 
-- Check internet connection
-- Ensure sufficient storage space
-- Verify INTERNET permission in AndroidManifest.xml
+- Ensure good lighting
+- Hold camera steady (avoid blur)
+- Frame the nutrition label clearly
+- Avoid glare and shadows
+- Clean camera lens
 
-### App crashes during generation
+### Model downloaded but not analyzing
 
-- Try the smaller model (SmolLM2 360M)
-- Close other apps to free memory
-- Check that `largeHeap="true"` is set in AndroidManifest.xml
+**Solutions:**
 
-### Generation is slow
+1. Check logcat for loading errors
+2. Restart app to trigger auto-load
+3. Verify device has 2-3 GB free RAM
+4. Check model file isn't corrupted
 
-- This is normal for on-device inference
-- Smaller models run faster
-- Performance depends on device CPU
+**See [HOW_IT_WORKS.md](HOW_IT_WORKS.md) for detailed troubleshooting**
 
-## Next Steps
+## 🎯 Model Options
 
-Want to customize this app? Try:
+| Model               | Size   | Speed     | Quality   | Recommended For    |
+|---------------------|--------|-----------|-----------|--------------------|
+| **Qwen 2.5 0.5B** ⭐ | 374 MB | Fast      | Good      | **Default choice** |
+| SmolLM2 360M        | 119 MB | Very Fast | Fair      | Testing            |
+| Llama 3.2 1B        | 815 MB | Medium    | Excellent | Better accuracy    |
+| Nanonets OCR2 3B    | 4.2 GB | Slow      | Best      | High-end devices   |
+| Meta Llama 3 8B     | 4.8 GB | Very Slow | Best      | High-end devices   |
 
-1. **Add more models** - Edit `MyApplication.kt` → `registerModels()`
-2. **Customize UI** - Edit `MainActivity.kt` compose functions
-3. **Add system prompts** - Modify message format in `ChatViewModel.kt`
-4. **Persist chat history** - Add Room database or DataStore
-5. **Add model parameters** - Explore temperature, top-k, top-p settings
+The app is configured to auto-download **Qwen 2.5 0.5B** by default.
 
-## Resources
+## 📖 Documentation
 
-- [Full Quick Start Guide](app/src/main/java/com/runanywhere/startup_hackathon20/QUICK_START_ANDROID.md)
-- [RunAnywhere SDK Repository](https://github.com/RunanywhereAI/runanywhere-sdks)
-- [SDK Documentation](https://github.com/RunanywhereAI/runanywhere-sdks/blob/main/CLAUDE.md)
+- **[HOW_IT_WORKS.md](HOW_IT_WORKS.md)** - Complete AI pipeline explanation
+- **[DESIGN_SYSTEM.md](DESIGN_SYSTEM.md)** - Complete design documentation
+- **[LOCAL_AI_SETUP_GUIDE.md](LOCAL_AI_SETUP_GUIDE.md)** - Advanced AI setup
 
-## License
+## 🎉 What Makes This Special
 
-This example app follows the license of the RunAnywhere SDK.
+Unlike commercial nutrition scanner apps:
+
+- ✅ **Complete Privacy** - No data sent to cloud
+- ✅ **Works Offline** - After initial model download
+- ✅ **No Subscriptions** - Free forever
+- ✅ **No API Keys** - No external services required
+- ✅ **Open Source** - Full transparency
+- ✅ **On-Device AI** - Fast and private
+
+## 📄 License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## 📧 Contact
+
+For questions or support, please open an issue in the repository.
+
+---
+
+**Built with ❤️ using Jetpack Compose and on-device AI**

@@ -1,20 +1,25 @@
 package com.runanywhere.startup_hackathon20
 
+import android.graphics.Bitmap
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material3.*
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavType
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
+import com.runanywhere.startup_hackathon20.screens.*
 import com.runanywhere.startup_hackathon20.ui.theme.Startup_hackathon20Theme
+import com.runanywhere.startup_hackathon20.viewmodels.AuthViewModel
+import com.runanywhere.startup_hackathon20.viewmodels.ScanViewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -22,267 +27,107 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             Startup_hackathon20Theme {
-                ChatScreen()
+                FoodLabelScanApp()
             }
         }
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ChatScreen(viewModel: ChatViewModel = viewModel()) {
-    val messages by viewModel.messages.collectAsState()
-    val isLoading by viewModel.isLoading.collectAsState()
-    val availableModels by viewModel.availableModels.collectAsState()
-    val downloadProgress by viewModel.downloadProgress.collectAsState()
-    val currentModelId by viewModel.currentModelId.collectAsState()
-    val statusMessage by viewModel.statusMessage.collectAsState()
+fun FoodLabelScanApp() {
+    val navController = rememberNavController()
+    val authViewModel: AuthViewModel = viewModel()
+    val scanViewModel: ScanViewModel = viewModel()
 
-    var inputText by remember { mutableStateOf("") }
-    var showModelSelector by remember { mutableStateOf(false) }
+    val currentUserId by authViewModel.currentUserId.collectAsState()
+    val scanResult by scanViewModel.scanResult.collectAsState()
+    val isLoading by scanViewModel.isLoading.collectAsState()
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("AI Chat") },
-                actions = {
-                    TextButton(onClick = { showModelSelector = !showModelSelector }) {
-                        Text("Models")
-                    }
-                }
-            )
+    // Determine start destination based on auth state
+    val startDestination = if (authViewModel.isUserLoggedIn()) "home" else "login"
+
+    // Handle navigation when scan completes
+    LaunchedEffect(scanResult) {
+        if (scanResult != null && !isLoading) {
+            navController.navigate("results") {
+                popUpTo("loading") { inclusive = true }
+            }
         }
-    ) { padding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
+    }
+
+    Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+        NavHost(
+            navController = navController,
+            startDestination = startDestination,
+            modifier = Modifier.padding(innerPadding)
         ) {
-            // Status bar
-            Surface(
-                modifier = Modifier.fillMaxWidth(),
-                color = MaterialTheme.colorScheme.secondaryContainer,
-                tonalElevation = 2.dp
-            ) {
-                Column(modifier = Modifier.padding(12.dp)) {
-                    Text(
-                        text = statusMessage,
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                    downloadProgress?.let { progress ->
-                        LinearProgressIndicator(
-                            progress = { progress },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(top = 8.dp)
-                        )
-                    }
-                }
-            }
-
-            // Model selector (collapsible)
-            if (showModelSelector) {
-                ModelSelector(
-                    models = availableModels,
-                    currentModelId = currentModelId,
-                    onDownload = { modelId -> viewModel.downloadModel(modelId) },
-                    onLoad = { modelId -> viewModel.loadModel(modelId) },
-                    onRefresh = { viewModel.refreshModels() }
-                )
-            }
-
-            // Messages List
-            val listState = rememberLazyListState()
-
-            LazyColumn(
-                state = listState,
-                modifier = Modifier.weight(1f),
-                contentPadding = PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                items(messages) { message ->
-                    MessageBubble(message)
-                }
-            }
-
-            // Auto-scroll to bottom when new messages arrive
-            LaunchedEffect(messages.size) {
-                if (messages.isNotEmpty()) {
-                    listState.animateScrollToItem(messages.size - 1)
-                }
-            }
-
-            // Input Field
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                TextField(
-                    value = inputText,
-                    onValueChange = { inputText = it },
-                    modifier = Modifier.weight(1f),
-                    placeholder = { Text("Type a message...") },
-                    enabled = !isLoading && currentModelId != null
-                )
-
-                Button(
-                    onClick = {
-                        if (inputText.isNotBlank()) {
-                            viewModel.sendMessage(inputText)
-                            inputText = ""
+            // Login Screen
+            composable("login") {
+                LoginScreen(
+                    onLoginSuccess = {
+                        navController.navigate("home") {
+                            popUpTo("login") { inclusive = true }
                         }
                     },
-                    enabled = !isLoading && inputText.isNotBlank() && currentModelId != null
-                ) {
-                    Text("Send")
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun MessageBubble(message: ChatMessage) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = if (message.isUser)
-                MaterialTheme.colorScheme.primaryContainer
-            else
-                MaterialTheme.colorScheme.secondaryContainer
-        )
-    ) {
-        Column(modifier = Modifier.padding(12.dp)) {
-            Text(
-                text = if (message.isUser) "You" else "AI",
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = message.text,
-                style = MaterialTheme.typography.bodyMedium
-            )
-        }
-    }
-}
-
-@Composable
-fun ModelSelector(
-    models: List<com.runanywhere.sdk.models.ModelInfo>,
-    currentModelId: String?,
-    onDownload: (String) -> Unit,
-    onLoad: (String) -> Unit,
-    onRefresh: () -> Unit
-) {
-    Surface(
-        modifier = Modifier.fillMaxWidth(),
-        color = MaterialTheme.colorScheme.surface,
-        tonalElevation = 4.dp
-    ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    text = "Available Models",
-                    style = MaterialTheme.typography.titleMedium
+                    authViewModel = authViewModel
                 )
-                TextButton(onClick = onRefresh) {
-                    Text("Refresh")
+            }
+
+            // Home Screen
+            composable("home") {
+                HomeScreen(
+                    userId = currentUserId,
+                    onScanClick = {
+                        navController.navigate("camera")
+                    },
+                    onLogout = {
+                        authViewModel.logout()
+                        navController.navigate("login") {
+                            popUpTo("login") { inclusive = true }
+                        }
+                    }
+                )
+            }
+
+            // Camera Screen
+            composable("camera") {
+                CameraScreen(
+                    onImageCaptured = { bitmap ->
+                        // Navigate to loading screen
+                        navController.navigate("loading")
+                        // Start processing in background with userId
+                        scanViewModel.processFoodLabel(bitmap, currentUserId)
+                    }
+                )
+            }
+
+            // Loading Screen
+            composable("loading") {
+                if (isLoading) {
+                    LoadingScreen()
                 }
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
-
-            if (models.isEmpty()) {
-                Text(
-                    text = "No models available. Initializing...",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            } else {
-                LazyColumn(
-                    modifier = Modifier.heightIn(max = 300.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    items(models) { model ->
-                        ModelItem(
-                            model = model,
-                            isLoaded = model.id == currentModelId,
-                            onDownload = { onDownload(model.id) },
-                            onLoad = { onLoad(model.id) }
-                        )
-                    }
+            // Results Screen
+            composable("results") {
+                scanResult?.let { result ->
+                    ResultsScreen(
+                        scanResult = result,
+                        onScanAnother = {
+                            scanViewModel.clearResult()
+                            navController.navigate("camera") {
+                                popUpTo("home") { inclusive = false }
+                            }
+                        },
+                        onReturnHome = {
+                            scanViewModel.clearResult()
+                            navController.navigate("home") {
+                                popUpTo("home") { inclusive = true }
+                            }
+                        }
+                    )
                 }
             }
         }
-    }
-}
-
-@Composable
-fun ModelItem(
-    model: com.runanywhere.sdk.models.ModelInfo,
-    isLoaded: Boolean,
-    onDownload: () -> Unit,
-    onLoad: () -> Unit
-) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = if (isLoaded)
-                MaterialTheme.colorScheme.tertiaryContainer
-            else
-                MaterialTheme.colorScheme.surfaceVariant
-        )
-    ) {
-        Column(modifier = Modifier.padding(12.dp)) {
-            Text(
-                text = model.name,
-                style = MaterialTheme.typography.titleSmall
-            )
-
-            if (isLoaded) {
-                Text(
-                    text = "✓ Currently Loaded",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.primary
-                )
-            } else {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 8.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Button(
-                        onClick = onDownload,
-                        modifier = Modifier.weight(1f),
-                        enabled = !model.isDownloaded
-                    ) {
-                        Text(if (model.isDownloaded) "Downloaded" else "Download")
-                    }
-
-                    Button(
-                        onClick = onLoad,
-                        modifier = Modifier.weight(1f),
-                        enabled = model.isDownloaded
-                    ) {
-                        Text("Load")
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun DefaultPreview() {
-    Startup_hackathon20Theme {
-        ChatScreen()
     }
 }
